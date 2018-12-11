@@ -9,7 +9,8 @@ defmodule Apartmentex.TenantActionsTest do
   @tenant_id 2
 
   setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(@repo)
+    Apartmentex.drop_tenant(@repo, @tenant_id)
+    :ok
   end
 
   test ".migrate_tenant/4 migrates the tenant forward by default" do
@@ -103,7 +104,7 @@ defmodule Apartmentex.TenantActionsTest do
 
     @repo |> Ecto.Adapters.SQL.query(sql, [])
 
-    migration_function.("ERROR 42P07 (duplicate_table): relation \"notes\" already exists")
+    migration_function.("ERROR 42P07 (duplicate_table) relation \"notes\" already exists")
   end
 
   defp force_rollback_failure(rollback_function) do
@@ -113,6 +114,6 @@ defmodule Apartmentex.TenantActionsTest do
 
     @repo |> Ecto.Adapters.SQL.query(sql, [])
 
-    rollback_function.("ERROR 42P01 (undefined_table): table \"notes\" does not exist")
+    rollback_function.("ERROR 42P01 (undefined_table) table \"notes\" does not exist")
   end
 end

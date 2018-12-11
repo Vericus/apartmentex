@@ -3,43 +3,46 @@ defmodule Mix.Tasks.Apartmentex.Gen.MigrationTest do
 
   import Support.FileHelpers
   import Mix.Tasks.Apartmentex.Gen.Migration, only: [run: 1]
+  import Apartmentex.MigrationsPathBuilder
 
-  tmp_path = Path.join(tmp_path(), inspect(Apartmentex.Gen.Migration))
-  @migrations_path Path.join(tmp_path, "tenant_migrations")
-
-  defmodule Repo do
+  defmodule TestRepo do
     def __adapter__ do
       true
     end
 
     def config do
-      [priv: "tmp/#{inspect(Apartmentex.Gen.Migration)}", otp_app: :apartmentex]
+      [otp_app: :apartmentex]
     end
   end
 
+  @migrations_path tenant_migrations_path(TestRepo)
+
   setup do
-    File.rm_rf!(unquote(tmp_path))
+    File.rm_rf!(priv_path_for(TestRepo))
     :ok
   end
 
   test "generates a new migration" do
-    run ["-r", to_string(Repo), "my_migration"]
+    run(["-r", to_string(TestRepo), "my_migration"])
     assert [name] = File.ls!(@migrations_path)
-    assert String.match? name, ~r/^\d{14}_my_migration\.exs$/
-    assert_file Path.join(@migrations_path, name), fn file ->
-      assert file =~ "defmodule Mix.Tasks.Apartmentex.Gen.MigrationTest.Repo.TenantMigrations.MyMigration do"
+    assert String.match?(name, ~r/^\d{14}_my_migration\.exs$/)
+
+    assert_file(Path.join(@migrations_path, name), fn file ->
+      assert file =~
+               "defmodule Mix.Tasks.Apartmentex.Gen.MigrationTest.TestRepo.TenantMigrations.MyMigration do"
+
       assert file =~ "use Ecto.Migration"
       assert file =~ "def change do"
-    end
+    end)
   end
 
   test "underscores the filename when generating a migration" do
-    run ["-r", to_string(Repo), "MyMigration"]
+    run(["-r", to_string(TestRepo), "MyMigration"])
     assert [name] = File.ls!(@migrations_path)
-    assert String.match? name, ~r/^\d{14}_my_migration\.exs$/
+    assert String.match?(name, ~r/^\d{14}_my_migration\.exs$/)
   end
 
   test "raises when missing file" do
-    assert_raise Mix.Error, fn -> run ["-r", to_string(Repo)] end
+    assert_raise Mix.Error, fn -> run(["-r", to_string(TestRepo)]) end
   end
 end
