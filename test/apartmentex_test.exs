@@ -1,23 +1,24 @@
 defmodule Apartmentex.ApartmentexTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
 
   alias Apartmentex.Note
   alias Apartmentex.TestPostgresRepo
 
   @tenant_id 2
+  @other_tenant_id 1
 
   setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(TestPostgresRepo)
+    Apartmentex.drop_tenant(TestPostgresRepo, @tenant_id)
+    Apartmentex.drop_tenant(TestPostgresRepo, @other_tenant_id)
+
     Apartmentex.new_tenant(TestPostgresRepo, @tenant_id)
+    Apartmentex.new_tenant(TestPostgresRepo, @other_tenant_id)
     :ok
   end
 
   test ".all/4 only returns the tenant's records" do
-    other_tenant_id = 1
-    Apartmentex.new_tenant(TestPostgresRepo, other_tenant_id)
-
     inserted_note = Apartmentex.insert!(TestPostgresRepo, %Note{body: "foo"}, @tenant_id)
-    _other_note = Apartmentex.insert!(TestPostgresRepo, %Note{body: "bar"}, other_tenant_id)
+    _other_note = Apartmentex.insert!(TestPostgresRepo, %Note{body: "bar"}, @other_tenant_id)
 
     fetched_notes = Apartmentex.all(TestPostgresRepo, Note, @tenant_id)
     fetched_note = List.first(fetched_notes)
@@ -29,7 +30,7 @@ defmodule Apartmentex.ApartmentexTest do
 
   test ".delete/4 deletes a tenant's record by id" do
     inserted_note = Apartmentex.insert!(TestPostgresRepo, %Note{body: "foo"}, @tenant_id)
-    {:ok, _ } = Apartmentex.delete(TestPostgresRepo, inserted_note, @tenant_id)
+    {:ok, _} = Apartmentex.delete(TestPostgresRepo, inserted_note, @tenant_id)
 
     refute Apartmentex.get(TestPostgresRepo, Note, inserted_note.id, @tenant_id)
   end

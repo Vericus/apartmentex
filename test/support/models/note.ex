@@ -3,11 +3,11 @@ defmodule Apartmentex.Note do
   import Ecto.Changeset
 
   schema "notes" do
-    field :body, :string
+    field(:body, :string)
   end
 
   def changeset(model, params \\ :empty) do
     model
-    |> cast(params, ~w(body))
+    |> cast(params, [:body])
   end
 end
