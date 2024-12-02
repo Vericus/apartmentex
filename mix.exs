@@ -4,17 +4,17 @@ defmodule Apartmentex.Mixfile do
   def project do
     [
       app: :apartmentex,
-      version: "0.2.3",
-      elixir: "~> 1.4",
+      version: "0.3.0",
+      elixir: "~> 1.17",
       description: "SaaS Library for Ecto applications using Postgres or Mysql",
       package: [
         links: %{"Github" => "https://github.com/Dania02525/apartmentex"},
         maintainers: ["Dania Simmons"],
         licenses: ["MIT"]
       ],
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
-      elixirc_paths: elixirc_paths(Mix.env),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps()
     ]
   end
@@ -23,7 +23,7 @@ defmodule Apartmentex.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:ecto, :logger]]
+    [applications: [:ecto_sql, :logger]]
   end
 
   # Dependencies can be Hex packages:
@@ -37,8 +37,8 @@ defmodule Apartmentex.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:ecto, "~> 3.0.4"},
-      {:mariaex, "~> 0.8.0", optional: true},
+      {:ecto_sql, "~> 3.0"},
+      {:mariaex, ">= 0.8.0", optional: true},
       {:postgrex, ">= 0.11.0", optional: true},
       {:ex_doc, ">= 0.0.0", only: :dev}
     ]

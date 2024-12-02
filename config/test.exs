@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :apartmentex, Apartmentex.TestPostgresRepo,
   hostname: "localhost",
