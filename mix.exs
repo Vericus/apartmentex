@@ -23,7 +23,7 @@ defmodule Apartmentex.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:ecto_sql, :logger]]
+    [applications: [:ecto, :ecto_sql, :logger]]
   end
 
   # Dependencies can be Hex packages:
@@ -37,8 +37,9 @@ defmodule Apartmentex.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:ecto_sql, "~> 3.0"},
-      {:mariaex, ">= 0.8.0", optional: true},
+      {:ecto, "~> 3.12"},
+      {:ecto_sql, "~> 3.12"},
+      {:myxql, "~> 0.7.0", optional: true},
       {:postgrex, ">= 0.11.0", optional: true},
       {:ex_doc, ">= 0.0.0", only: :dev}
     ]

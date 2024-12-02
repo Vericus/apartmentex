@@ -37,32 +37,36 @@ defmodule Apartmentex.TenantActions do
 
   def create_schema(repo, tenant) do
     prefix = build_prefix(tenant)
-    case repo.__adapter__ do
+
+    case repo.__adapter__() do
       Postgres -> SQL.query(repo, "CREATE SCHEMA \"#{prefix}\"", [])
-      MySQL    -> SQL.query(repo, "CREATE DATABASE #{prefix}", [])
+      MySQL -> SQL.query(repo, "CREATE DATABASE #{prefix}", [])
     end
   end
 
   def drop_tenant(repo, tenant) do
     prefix = build_prefix(tenant)
-    case repo.__adapter__ do
+
+    case repo.__adapter__() do
       Postgres -> SQL.query(repo, "DROP SCHEMA \"#{prefix}\" CASCADE", [])
-      MySQL    -> SQL.query(repo, "DROP DATABASE #{prefix}", [])
+      MySQL -> SQL.query(repo, "DROP DATABASE #{prefix}", [])
     end
   end
 
   defp migrate_and_return_status(repo, tenant, direction, opts) do
     prefix = build_prefix(tenant)
 
-    {status, versions} = handle_database_exceptions fn ->
-      opts_with_prefix = Keyword.put(opts, :prefix, prefix)
-      Ecto.Migrator.run(
-        repo,
-        tenant_migrations_path(repo),
-        direction,
-        opts_with_prefix
-      )
-    end
+    {status, versions} =
+      handle_database_exceptions(fn ->
+        opts_with_prefix = Keyword.put(opts, :prefix, prefix)
+
+        Ecto.Migrator.run(
+          repo,
+          tenant_migrations_path(repo),
+          direction,
+          opts_with_prefix
+        )
+      end)
 
     {status, prefix, versions}
   end
@@ -73,8 +77,9 @@ defmodule Apartmentex.TenantActions do
     rescue
       e in Postgrex.Error ->
         {:error, Postgrex.Error.message(e)}
-      e in Mariaex.Error ->
-        {:error, Mariaex.Error.message(e)}
+
+      e in MyXQL.Error ->
+        {:error, MyXQL.Error.message(e)}
     end
   end
 end

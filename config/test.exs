@@ -6,4 +6,4 @@ config :apartmentex, Apartmentex.TestPostgresRepo,
   adapter: Ecto.Adapters.Postgres,
   pool: Ecto.Adapters.SQL.Sandbox
 
-config :logger, level: :warn
+config :logger, level: :warning
