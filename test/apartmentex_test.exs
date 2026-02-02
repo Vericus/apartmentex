@@ -196,4 +196,11 @@ defmodule Apartmentex.ApartmentexTest do
     assert updated_note.id == inserted_note.id
     assert updated_note.body == "bar"
   end
+
+  test ".exists? checks for existence of a tenant's record" do
+    Apartmentex.insert!(TestPostgresRepo, %Note{body: "foo"}, @tenant_id)
+
+    assert Apartmentex.exists?(TestPostgresRepo, Note, @tenant_id)
+    refute Apartmentex.exists?(TestPostgresRepo, Note, @other_tenant_id)
+  end
 end
