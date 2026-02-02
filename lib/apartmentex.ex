@@ -1,6 +1,5 @@
 defmodule Apartmentex do
   alias Ecto.Changeset
-  import Apartmentex.PrefixBuilder
 
   defdelegate drop_tenant(repo, tenant), to: Apartmentex.TenantActions
 
@@ -8,6 +7,8 @@ defmodule Apartmentex do
     to: Apartmentex.TenantActions
 
   defdelegate new_tenant(repo, tenant), to: Apartmentex.TenantActions
+
+  defdelegate build_prefix(tenant), to: Apartmentex.PrefixBuilder
 
   def all(repo, queryable, tenant, opts \\ []) when is_list(opts) do
     queryable
@@ -172,15 +173,23 @@ defmodule Apartmentex do
 
   # helpers
 
-  defp add_prefix(%Changeset{} = changeset, tenant) do
+  @doc """
+  Adds the appropriate tenant prefix to an Ecto model or changeset.
+  """
+  def add_prefix(%Changeset{} = changeset, tenant) do
     %{changeset | data: add_prefix(changeset.data, tenant)}
   end
 
-  defp add_prefix(%{__struct__: _} = model, tenant) do
+  def add_prefix(%{__struct__: _} = model, tenant) do
     Ecto.put_meta(model, prefix: build_prefix(tenant))
   end
 
-  defp add_prefix_to_query(queryable, tenant) do
+  @doc """
+  Adds the appropriate tenant prefix to an Ecto queryable.
+  """
+  @spec add_prefix_to_query(Ecto.Queryable.t(), Apartmentex.PrefixBuilder.tenant()) ::
+          Ecto.Query.t()
+  def add_prefix_to_query(queryable, tenant) do
     queryable
     |> Ecto.Queryable.to_query()
     |> Map.put(:prefix, build_prefix(tenant))
