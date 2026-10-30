@@ -4,8 +4,8 @@ defmodule Apartmentex.Mixfile do
   def project do
     [
       app: :apartmentex,
-      version: "0.3.0",
-      elixir: "~> 1.19",
+      version: "0.4.0",
+      elixir: "~> 1.20",
       description: "SaaS Library for Ecto applications using Postgres or Mysql",
       package: [
         links: %{"Github" => "https://github.com/Dania02525/apartmentex"},
